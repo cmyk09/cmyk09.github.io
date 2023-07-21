@@ -8,7 +8,7 @@ topnav:
     - title: News
       url: /news
     - title: Hobby
-      url: /news
+      url: 
 
 #Topnav dropdowns
 topnav_dropdowns:
@@ -32,12 +32,7 @@ topnav_dropdowns:
           url: /p1_landing_page.html
         - title: Product 2
           url: /p2_landing_page.html
-- title: Develop
-      folderitems:
-        - title: JAVA
-          url: /mydoc_introduction.html
-        - title: JSP
-          url: /p1_landing_page.html
-        - title: Thymelealf
+        - title: Product 3
           url: /p2_landing_page.html
+
 # Copyright 2021 Google LLC
