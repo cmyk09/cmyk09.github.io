@@ -8,7 +8,7 @@ topnav:
     - title: News
       url: /news
     - title: Hobby
-      url: /hobby
+      url: /news
 
 #Topnav dropdowns
 topnav_dropdowns:
