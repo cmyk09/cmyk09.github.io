@@ -79,5 +79,9 @@ entries:
       url:
       output: web, pdf
 
+    - title: Java
+      url: /java.html
+      output: web, pdf
+
 # Copyright 2021 Google LLC
 
