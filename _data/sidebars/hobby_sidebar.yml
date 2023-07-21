@@ -64,7 +64,7 @@ entries:
 
     folderitems:
     - title: Golf
-      url: 
+      url: /golf.html
       output: web, pdf
 
     - title: Game
