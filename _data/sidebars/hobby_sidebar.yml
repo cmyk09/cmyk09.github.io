@@ -2,7 +2,7 @@
 
 
 entries:
-- title: Sidebar
+- title: sidebar
   product: hobby
   version: 1.0
   folders:
@@ -57,6 +57,26 @@ entries:
 
     - title: Sample 7
       url: /p1_sample7.html
+      output: web, pdf
+
+  - title: hobby
+    output: web, pdf
+
+    folderitems:
+    - title: Golf
+      url: 
+      output: web, pdf
+
+    - title: Game
+      url:
+      output: web, pdf
+
+    - title: Ani
+      url:
+      output: web, pdf
+
+    - title: Movie
+      url:
       output: web, pdf
 
 # Copyright 2021 Google LLC
