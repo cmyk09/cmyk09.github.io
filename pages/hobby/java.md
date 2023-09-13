@@ -3,7 +3,7 @@ title: Java
 keywords: java
 sidebar: hobby_sidebar
 toc: false
-permalink: java.md
+permalink: java.html
 folder: hobby
 ---
 ```java
