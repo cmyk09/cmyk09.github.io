@@ -7,63 +7,85 @@ permalink: java.html
 folder: hobby
 ---
 ```java
-private List<GoodImage> addGoodsImgFile(MultipartFile mfile1, MultipartFile mfile2, MultipartFile mfile3,
-			MultipartFile mfile4, MultipartFile mfile5, MultipartFile mfile6, HttpServletRequest request) 
-	{
-		ServletContext context = request.getServletContext();
-	    String savePath = context.getRealPath("/images/goods");
-	    
-	    List<MultipartFile> mfiles = new ArrayList<>();
-	    mfiles.add(mfile1) ;
-	    mfiles.add(mfile2) ;
-	    mfiles.add(mfile3) ;
-	    mfiles.add(mfile4) ;
-	    mfiles.add(mfile5) ;	    
-	    mfiles.add(mfile6) ;
-	    List<GoodImage> list = null;
-	    try
-	    {	 
-	    	
-	    	for (int i=0; i<mfiles.size(); i++)
-	    	{
-	    		if(mfiles.get(i).getSize()==0) continue;
+// MultipartFile 을 이용한 파일 업로드/다운로드
+=========================
+@Controller
+@RequestMapping("/files")
+public class FileController
+{
+   @Autowired
+   ResourceLoader resourceLoader;
 
-	            if (list == null) list = new ArrayList<>();
-	            
-	            String OriginalFilename = mfiles.get(i).getOriginalFilename();
-	            
-	            System.out.println("순번 "+i+ " 파일이름 : "+OriginalFilename);
-	            
-	            UUID  uuid = UUID.randomUUID();
-		        String uuidStr = uuid.toString();
-		         
-	            String[] token = OriginalFilename.split("\\.");
-		        String f1 = token[0];
-		        String f2 = token[1];
-		         
-		         String FakeFileName = f1 + "_" + uuidStr + "." + f2;
-		         		         
-	            mfiles.get(i).transferTo(new File(savePath+"/"+FakeFileName));
+   @GetMapping("/upload")
+   public String getForm()
+   {
+      return "upload/upload_form";
+   }
 
-	            //MultipartFile 주요 메소드
-	            String cType = mfiles.get(i).getContentType();         
-	            Resource res = mfiles.get(i).getResource();
-	            long fSize = mfiles.get(i).getSize();
-	            boolean empty = mfiles.get(i).isEmpty();
-	            GoodImage img = new GoodImage();
-	            img.setImgFileName(OriginalFilename);
-	            img.setImgFakeFileName(FakeFileName); 
-	            img.setImgSize(fSize);
-	            img.setImgType(cType);
-	            
-	            System.out.println("files : " + img.toString());
-	            list.add(img);
-	    	}
+   @PostMapping("/upload")
+   @ResponseBody
+   public String upload(@RequestParam("files")MultipartFile[] mfiles,
+                     HttpServletRequest request,
+                     @RequestParam("author") String author)
+   {
+      ServletContext context = request.getServletContext();
+      String savePath = context.getRealPath("/WEB-INF/files");
 
-	    }catch(Exception e)
-	    {
-	         e.printStackTrace();	    	
-	    }
-		return list;
-	}
+      /* static/upload 디렉토리에 업로드하려면, 아래처럼 절대경로를 구하여 사용하면 된다
+      * Resource resource = resourceLoader.getResource("classpath:/static");
+      * String absolutePath = resource.getFile().getAbsolutePath();
+      */
+
+      try {
+         for(int i=0;i<mfiles.length;i++) {
+            if(mfiles[0].getSize()==0) continue;
+            mfiles[i].transferTo(
+              new File(savePath+"/"+mfiles[i].getOriginalFilename()));
+            /* MultipartFile 주요 메소드
+            String cType = mfiles[i].getContentType();
+            String pName = mfiles[i].getName();
+            Resource res = mfiles[i].getResource();
+            long fSize = mfiles[i].getSize();
+            boolean empty = mfiles[i].isEmpty();
+            */
+         }
+
+         String msg = String.format("파일(%d)개 저장성공 (작성자:%s)", mfiles.length,author);
+         return msg;
+      } catch (Exception e) {
+         e.printStackTrace();
+         return "파일 저장 실패:";
+      }
+   }
+
+   @GetMapping("/download/{filename}")
+   public ResponseEntity<Resource> download(
+                              HttpServletRequest request,
+                              @PathVariable String filename)
+   {
+      Resource resource = resourceLoader.getResource("WEB-INF/files/"+filename);
+      System.out.println("파일명:"+resource.getFilename());
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        /* 파일명이 한글로 되어 있을 때 다운로드가 안되는 경우... */
+        try {
+         filename = new String(filename.getBytes("UTF-8"), "ISO-8859-1");
+      } catch (UnsupportedEncodingException e) {
+         e.printStackTrace();
+      }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
+   }
+}
 ```
