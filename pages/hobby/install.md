@@ -145,4 +145,478 @@ spring.mail.password=dxpgqwybvgegygds
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.properties.mail.smtp.auth=true
 =================================
+pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.ezen</groupId>
+	<artifactId>SpringProject</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>demo</name>	
+	<description>ezen project for Spring Boot</description>
+	
+	<properties>
+		<jakarta-servlet.version>5.0.0</jakarta-servlet.version>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		--> 
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>apache-jsp</artifactId>
+			
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+		<dependency>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
+          <version>8.0.33</version>
+      	</dependency>
+      	<dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-jdbc</artifactId>
+      	</dependency>
+      	
+      	<dependency>
+          <groupId>org.mybatis.spring.boot</groupId>
+          <artifactId>mybatis-spring-boot-starter</artifactId>
+          <version>3.0.0</version>
+      	</dependency>
+      	
+      	<!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter -->
+		<dependency>
+		    <groupId>com.github.pagehelper</groupId>
+		    <artifactId>pagehelper-spring-boot-starter</artifactId>
+		    <version>1.4.6</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+		    <groupId>org.projectlombok</groupId>
+		    <artifactId>lombok</artifactId>
+		    <version>1.18.28</version>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-data-jpa</artifactId>
+		    <version>3.1.1</version>
+		</dependency>
+
+  		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+		    <version>3.1.0</version>
+		</dependency>
+
+			
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+=============================
+mapper.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        				"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ezen.goods.GoodsMgtMapper">
+
+	<select id="getGoodsCategoryList1" 
+			resultType="Map">
+			SELECT distinct code_first as code, name_first as name 
+			  FROM goods_category_list
+			  order by 1
+	</select>
+	
+	<select id="getGoodsCategoryList2" 
+			parameterType="String"
+			resultType="Map">
+			SELECT distinct code_second as code, name_second as name 
+			  FROM goods_category_list 
+			 where code_first = #{key} 
+			 order by 1
+	</select>
+	
+	<select id="getGoodsCategoryList3" 
+			parameterType="String"
+			resultType="Map">
+			SELECT distinct code_third as code, name_third as name 
+			  FROM goods_category_list 
+			 where code_second = #{key} 
+			 order by 1
+	</select>
+	
+	<insert id="addGoods"
+			useGeneratedKeys="true"
+			keyProperty="Goodsno"
+			parameterType="com.ezen.goods.GoodsVO">
+			INSERT INTO goods (Goodsno, CategoryCode, CategoryName, GoodsName, GoodsSaleQty, GoodsSalePrice, GoodsPrice, GoodsDetail, GoodsStatus, GoodsRegistryDay, SellerCode)
+					VALUES (NULL, #{inputS3Code}, #{inputS3Name}, #{GoodsName}, #{GoodsSaleQty}, #{GoodsSalePrice}, #{GoodsPrice}, #{GoodsDetail}, #{GoodsStatus}, #{GoodsRegistryDay}, #{SellerCode})
+	</insert>
+	
+	<insert id="saveGoodsImgFile"
+			parameterType="Map" >
+			INSERT INTO goods_img_list (Fileno, Goodsno, ImgFileName1, ImgFileFakeName1, ImgFileName2, ImgFileFakeName2, ImgFileName3, ImgFileFakeName3, ImgFileName4, ImgFileFakeName4, ImgFileName5, ImgFileFakeName5, ImgFileName6, ImgFileFakeName6) 
+							    VALUES (NULL, #{Goodsno}, #{imgName1}, #{imgFakeName1}, #{imgName2},   #{imgFakeName2},  #{imgName3},  #{imgFakeName3},  #{imgName4},  #{imgFakeName4},  #{imgName5},  #{imgFakeName5},  #{imgName6},  #{imgFakeName6})
+			
+	</insert>
+	
+	<select id="detailGoodsForm" 
+			parameterType="Integer"
+			resultType="Map">
+			SELECT g.Goodsno, CategoryCode, CategoryName, 
+					GoodsName, GoodsSaleQty, GoodsSalePrice,
+					GoodsPrice, GoodsDetail, GoodsRegistryDay,
+					case when ImgFileName1 is null then 'X' 
+									 when ImgFileName1 = '' then 'X' 
+									 else ImgFileName1 end ImgFileName1,
+			                    case when ImgFileFakeName1 is null then 'X' 
+			                    	 when ImgFileFakeName1 = '' then 'X'
+			                    	 else ImgFileFakeName1 end ImgFileFakeName1,
+								case when ImgFileName2 is null then 'X' 
+									 when ImgFileName2 = '' then 'X' 
+									 else ImgFileName2 end ImgFileName2,
+			                    case when ImgFileFakeName2 is null then 'X' 
+			                    	 when ImgFileFakeName2 = '' then 'X' 
+			                    	 else ImgFileFakeName2 end ImgFileFakeName2,
+			                    case when ImgFileName3 is null then 'X' 
+			                    	 when ImgFileName3 = '' then 'X' 
+			                   	  	 else ImgFileName3 end ImgFileName3,
+			                    case when ImgFileFakeName3 is null then 'X' 
+			                    	 when ImgFileFakeName3 = '' then 'X'
+			                    	 else ImgFileFakeName3 end ImgFileFakeName3,
+			                    case when ImgFileName4 is null then 'X' 
+			                    	 when ImgFileName4 = '' then 'X' 
+			                    	 else ImgFileName4 end ImgFileName4,
+			                    case when ImgFileFakeName4 is null then 'X' 
+			                    	 when ImgFileFakeName4 = '' then 'X' 
+			                    	 else ImgFileFakeName4 end ImgFileFakeName4,
+			                    case when ImgFileName5 is null then 'X' 
+			                    	 when ImgFileName5 = '' then 'X' 
+			                    	 else ImgFileName5 end ImgFileName5,
+			                    case when ImgFileFakeName5 is null then 'X' 
+			                    	 when ImgFileFakeName5 = '' then 'X'
+			                    	 else ImgFileFakeName5 end ImgFileFakeName5,
+			                    case when ImgFileName6 is null then 'X' 
+			                    	 when ImgFileName6 = '' then 'X' 
+			                    	 else ImgFileName6 end ImgFileName6,
+			                    case when ImgFileFakeName6 is null then 'X' 
+			                    	 when ImgFileFakeName6 = '' then 'X' 
+			                    	 else ImgFileFakeName6 end ImgFileFakeName6
+  			FROM (select * from goods where Goodsno = #{Goodsno}) g left outer join goods_img_list i
+    		  ON g.goodsno = i.goodsno 
+	</select>
+	
+	<select id="updateGoodsForm" 
+			parameterType="Integer"
+			resultType="Map">
+			Select * 
+			from
+			( SELECT g.Goodsno, CategoryCode, CategoryName, 
+								GoodsName, GoodsSaleQty, GoodsSalePrice,
+								GoodsPrice, GoodsDetail, GoodsRegistryDay,
+								case when ImgFileName1 is null then 'X' 
+									 when ImgFileName1 = '' then 'X' 
+									 else ImgFileName1 end ImgFileName1,
+			                    case when ImgFileFakeName1 is null then 'X' 
+			                    	 when ImgFileFakeName1 = '' then 'X'
+			                    	 else ImgFileFakeName1 end ImgFileFakeName1,
+								case when ImgFileName2 is null then 'X' 
+									 when ImgFileName2 = '' then 'X' 
+									 else ImgFileName2 end ImgFileName2,
+			                    case when ImgFileFakeName2 is null then 'X' 
+			                    	 when ImgFileFakeName2 = '' then 'X' 
+			                    	 else ImgFileFakeName2 end ImgFileFakeName2,
+			                    case when ImgFileName3 is null then 'X' 
+			                    	 when ImgFileName3 = '' then 'X' 
+			                   	  	 else ImgFileName3 end ImgFileName3,
+			                    case when ImgFileFakeName3 is null then 'X' 
+			                    	 when ImgFileFakeName3 = '' then 'X'
+			                    	 else ImgFileFakeName3 end ImgFileFakeName3,
+			                    case when ImgFileName4 is null then 'X' 
+			                    	 when ImgFileName4 = '' then 'X' 
+			                    	 else ImgFileName4 end ImgFileName4,
+			                    case when ImgFileFakeName4 is null then 'X' 
+			                    	 when ImgFileFakeName4 = '' then 'X' 
+			                    	 else ImgFileFakeName4 end ImgFileFakeName4,
+			                    case when ImgFileName5 is null then 'X' 
+			                    	 when ImgFileName5 = '' then 'X' 
+			                    	 else ImgFileName5 end ImgFileName5,
+			                    case when ImgFileFakeName5 is null then 'X' 
+			                    	 when ImgFileFakeName5 = '' then 'X'
+			                    	 else ImgFileFakeName5 end ImgFileFakeName5,
+			                    case when ImgFileName6 is null then 'X' 
+			                    	 when ImgFileName6 = '' then 'X' 
+			                    	 else ImgFileName6 end ImgFileName6,
+			                    case when ImgFileFakeName6 is null then 'X' 
+			                    	 when ImgFileFakeName6 = '' then 'X' 
+			                    	 else ImgFileFakeName6 end ImgFileFakeName6
+			  			FROM (select * from goods where Goodsno = #{Goodsno}) g left outer join goods_img_list i
+			    		  ON g.goodsno = i.goodsno 
+			) d left outer join goods_category_list l
+			on d.CategoryCode = l.code_third
+	</select>
+	
+	<update id="updateGoods"
+			parameterType="com.ezen.goods.GoodsVO">
+			UPDATE  goods 
+			   SET  CategoryCode = #{inputS3Code} ,
+					CategoryName = #{inputS3Name} ,
+					GoodsName = #{GoodsName} ,
+					GoodsSaleQty = #{GoodsSaleQty} ,
+					GoodsSalePrice = #{GoodsSalePrice} ,
+					GoodsPrice = #{GoodsPrice} ,
+					GoodsDetail = #{GoodsDetail} 
+	 		 WHERE Goodsno = #{Goodsno}
+	</update>
+	
+	<update id="updateGoodsImgFile"
+			parameterType="Map">
+			UPDATE  goods_img_list 
+			   SET  ImgFileName1 = #{ImgFileName1}, 
+					ImgFileFakeName1 = #{ImgFileFakeName1}, 
+					ImgFileName2 = #{ImgFileName2}, 
+					ImgFileFakeName2 = #{ImgFileFakeName2}, 
+					ImgFileName3 = #{ImgFileName3},
+					ImgFileFakeName3 = #{ImgFileFakeName3}, 
+					ImgFileName4 = #{ImgFileName4},
+					ImgFileFakeName4 = #{ImgFileFakeName4}, 
+					ImgFileName5 = #{ImgFileName5},
+					ImgFileFakeName5 = #{ImgFileFakeName5}, 
+					ImgFileName6 = #{ImgFileName6},
+					ImgFileFakeName6 = #{ImgFileFakeName6}
+	 		 WHERE Goodsno = #{Goodsno}
+	</update>
+	
+	<update id="deleteGoodsImgFile"
+			parameterType="Map">
+			UPDATE  goods_img_list 
+			<choose>
+				<when test = "fileno == 1 ">
+					SET  ImgFileName1 = '',
+						ImgFileFakeName1 = '' 
+				</when>
+				<when test = "fileno == 2 ">
+					SET  ImgFileName2 = '',
+						ImgFileFakeName2 = '' 
+				</when>
+				<when test = "fileno == 3 ">
+					SET  ImgFileName3 = '',
+						ImgFileFakeName3 = '' 
+				</when>
+				<when test = "fileno == 4 ">
+					SET  ImgFileName4 = '',
+						ImgFileFakeName4 = '' 
+				</when>
+				<when test = "fileno == 5 ">
+					SET  ImgFileName5 = '',
+						ImgFileFakeName5 = '' 
+				</when>
+				<when test = "fileno == 6 ">
+					SET  ImgFileName6 = '',
+						ImgFileFakeName6 = '' 
+				</when>
+			</choose>
+	 		 WHERE Goodsno = #{goodsno}
+	</update>
+	
+	<insert id="putInCart"
+			parameterType="com.ezen.goods.CartVO" >
+			INSERT INTO cart (cartno, userno, goodsno, goodsSalePrice, goodsSaleQty, cartRegistryDay)  
+			 VALUES (NULL, #{userno}, #{goodsno}, #{goodsSalePrice}, #{goodsSaleQty},   #{cartRegistryDay})
+			
+	</insert>
+	
+	<select id="getCartList" 
+			parameterType="Integer"
+			resultType="Map">
+			select d.cartno, d.userno, d.goodsno, i.imgFileFakeName1, d.goodsname, d.goodsSalePrice, d.goodsSaleQty, d.cartRegistryDay
+			 from (
+					select cartno, userno, c.goodsno, g.GoodsName, c.goodsSalePrice, c.goodsSaleQty, c.cartRegistryDay
+					  from cart c left outer join goods g 
+ 					   on c.goodsno = g.goodsno
+ 					 where c.userno = #{userno}
+  					) d left outer join goods_img_list i
+ 				 on d.goodsno = i.goodsno
+ 			 order by d.cartRegistryDay
+	</select>
+	
+	<select id="getOrderNo" 
+			resultType="Integer">
+			select case when max(orderNo) is null then 0 
+						else max(orderNo) end orderNo
+ 			 from orderlist
+	</select>
+	
+	<select id="getCartOrderList" 
+			parameterType="Map"
+			resultType="com.ezen.goods.OrderVO">
+			SELECT  userno as memberno, c.goodsno, g.SellerCode as sellerno, c.goodsSalePrice, c.goodsSaleQty
+			 FROM cart c left outer join goods g
+			  on c.goodsno = g.goodsno
+			where userno = #{userno}
+			  and cartno = #{cartno}
+	</select>
+	
+	<insert id="addOrder"
+			parameterType="com.ezen.goods.OrderVO" >
+			INSERT INTO orderlist (num, orderNo, memberNo, goodsNo, sellerNo, goodsSalePrice, goodsSaleQty, orderRegistryDay, OrderStatus) VALUES
+			<foreach collection="list" item="item" index="index" separator=",">
+				(NULL,#{item.orderno},#{item.memberno},#{item.goodsno},#{item.sellerno},#{item.goodsSalePrice},#{item.goodsSaleQty},#{item.orderRegistryDay},#{item.status} )
+			</foreach>
+	</insert>
+	
+	<delete id="deletedCart"
+			parameterType="com.ezen.goods.CartVO">
+			DELETE FROM cart 
+			WHERE cartno = #{cartno}
+	</delete>
+	
+	<select id="getOrderListMember" 
+			parameterType="Integer"
+			resultType="Map">
+			SELECT num, orderNo, memberNo, o.goodsNo, g.GoodsName, o.goodsSalePrice, o.goodsSaleQty, orderRegistryDay, OrderStatus
+			 FROM orderList  o left outer join goods g
+			  on o.goodsNo = g.goodsNo
+			where o.memberno = #{userno}
+	</select>
+	
+	<select id="getGoodsCategoryListAll" 
+			resultType="Map">
+			SELECT * FROM goods_category_list
+	</select>
+	
+	<select id="getGoodsMain" 
+			resultType="Map">
+			SELECT g.Goodsno, g.GoodsName, img.ImgFileFakeName1, GoodsSalePrice, GoodsPrice
+ 			FROM goods g left outer join goods_img_list img
+   			on g.Goodsno = img.Goodsno
+   			where goodsStatus = 'S'
+ 			ORDER BY RAND() limit 8
+	</select>
+	
+	<select id="getGoodsSearchKeyword" 
+			parameterType="String"
+			resultType="Map">
+			SELECT g.Goodsno, g.GoodsName, img.ImgFileFakeName1, GoodsSalePrice, GoodsPrice, g.GoodsRegistryDay
+			FROM goods g left outer join goods_img_list img
+			on g.Goodsno = img.Goodsno
+			where g.GoodsStatus = 'S'
+			  and g.GoodsName like #{keyword}
+			ORDER BY g.GoodsRegistryDay desc
+	</select>
+	
+	<select id="getGoodsSearchCategory" 
+			parameterType="Map"
+			resultType="Map">
+			SELECT g.Goodsno, g.GoodsName, img.ImgFileFakeName1, GoodsSalePrice, GoodsPrice, g.GoodsRegistryDay
+			  FROM (select * 
+					from goods
+					where GoodsStatus = 'S'
+					and categorycode in (  
+										select code_third
+										from goods_category_list
+										where substring(code_third , 1, 2 * #{lvl}) = #{code})) g left outer join goods_img_list img
+			   on g.Goodsno = img.Goodsno
+			ORDER BY g.GoodsRegistryDay desc
+	</select>
+	
+	<update id="updateGoodsQty"
+			parameterType="Map">
+			UPDATE  goods
+			   SET  goodsSaleQty = goodsSaleQty - #{goodsSaleQty}
+	 		 WHERE  Goodsno = #{goodsNo}
+	</update>
+
+	<select id="goodsList" 
+			parameterType="Integer"
+			resultType="Map">
+			SELECT * 
+			FROM goods 
+			where GoodsStatus in ('I', 'S', 'E')
+			  and SellerCode =  #{sellercode}
+			order by goodsno
+	</select>
+	
+	<update id="endSale"
+			parameterType="Integer">
+			UPDATE  goods
+			   SET  goodsStatus = 'E'
+	 		 WHERE  Goodsno = #{goodsNo}
+	</update>
+	
+	<update id="startSale"
+			parameterType="Integer">
+			UPDATE  goods
+			   SET  goodsStatus = 'S'
+	 		 WHERE  Goodsno = #{goodsNo}
+	</update>
+	
+	<update id="changeSaleQty"
+			parameterType="Map">
+			UPDATE  cart
+			   SET  goodsSaleQty = #{goodsSaleQty}
+	 		 WHERE  cartno = #{cartno}
+	</update>
+	
+	<update id="deleteGoods"
+			parameterType="Map">
+			UPDATE  goods
+			   SET  GoodsStatus = 'D',
+			   		GoodsDeleteDay = #{deleteDay} 
+	 		 WHERE Goodsno = #{goodsno}
+	</update>
+	
+	<update id="purConfirm" parameterType="com.ezen.goods.OrderVO">
+		update orderlist set orderstatus='purConfirm' where orderNo=#{orderNo}
+	</update>
+</mapper>
 ```
