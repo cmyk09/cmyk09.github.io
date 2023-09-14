@@ -1,9 +1,9 @@
 ---
 title: Java
-keywords: java
+keywords: install
 sidebar: hobby_sidebar
 toc: false
-permalink: java.html
+permalink: install.html
 folder: hobby
 ---
 ```java
