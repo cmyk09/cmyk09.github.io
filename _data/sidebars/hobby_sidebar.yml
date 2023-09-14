@@ -75,12 +75,12 @@ entries:
       url:
       output: web, pdf
 
-    - title: Movie
+    - title: install
       url:
       output: web, pdf
 
     - title: Java
-      url: /java.md
+      url: /java.html
       output: web, pdf
 
 # Copyright 2021 Google LLC
